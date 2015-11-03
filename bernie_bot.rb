@@ -19,26 +19,6 @@ class BernieBot
     return false if text.nil?
     tweet_length(text) <= MAX_CHARS ? true : false
   end
-=begin  
-  def build_text
-    source_text_1 = @texts.shuffle.first
-    
-    #first_part = @texts.shuffle.first.first_part
-    second_part_texts = @texts.find_all { |t| t.category == "conjunction" }
-    
-    
-    # = @texts.dup
-    second_part_texts.delete_if { |t| ( t.first_part == first_part ) or ( !valid_tweet?("#{first_part} #{t.second_part}") ) }
-    return "NOT POSSIBLE: #{first_part}" if second_part_texts.empty?
-    second_part = second_part_texts.shuffle.first.second_part
-    result = "#{first_part} #{second_part}"
-    if valid_tweet?(result)
-      return result
-    else
-      return "TOO LONG"
-    end
-  end
-=end
   
   def build_text
     first_text = @texts.shuffle.first
@@ -218,6 +198,16 @@ class BernieBot
       second_part: "stand together and end all forms of racism.",
       category: preposition
     })
+    texts << SourceText.new({
+      first_part: "Any serious criminal justice reform must",
+      second_part: "include removing marijuana from the Controlled Substances Act.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "If you take a look at my life’s work, there is one candidate in this campaign who is prepared to",
+      second_part: "stand up to the billionaire class.",
+      category: preposition
+    })
     
     
 =begin
@@ -304,6 +294,17 @@ class BernieBot
       second_part: "millions are looking for work.",
       category: conjunction
     })
+    texts << SourceText.new({
+      first_part: "At a time of massive inequality, the Republicans believe that",
+      second_part: "the richest people in America need to be made even richer.",
+      category: conjunction
+    })
+    texts << SourceText.new({
+      first_part: "There is something very wrong when",
+      second_part: "one family owns more wealth than the bottom 130 million Americans. #nhpolitics",
+      category: conjunction
+    })
+    
     
 =begin
         texts << SourceText.new({
@@ -429,8 +430,19 @@ class BernieBot
       second_part: "credit card or auto-loan debt. That is a tragedy for our young people and our nation.",
       category: verb_to_have
     })
+    texts << SourceText.new({
+      first_part: "Any serious criminal justice reform must include removing",
+      second_part: "marijuana from the Controlled Substances Act.",
+      category: verb_to_have
+    })
+    texts << SourceText.new({
+      first_part: "This campaign is sending a message to the billionaire class: you can’t have",
+      second_part: "it all! #nhpolitics",
+      category: verb_to_have
+    })
     
     
+      
 =begin
     texts << SourceText.new({
       first_part: "",
