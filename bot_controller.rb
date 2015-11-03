@@ -21,13 +21,25 @@ class BotController
   
   def tweet
     bot = @bots.first
-    success, result = bot.build_text
-    if success
-      @client.update( result )
-      puts result
-    else
-      puts "ERROR: #{result}"
+    5.times do
+      success, result = bot.build_text
+      if success
+        next if duplicate?( result )
+        @client.update( result )
+        puts result
+        break
+      else
+        puts "ERROR: #{result}"
+      end
     end
+  end
+  
+  def duplicate?( text )
+    tweets = @client.user_timeline
+    tweets.each do |tweet|
+      return true if tweet.text == text
+    end
+    false
   end
   
   def list
