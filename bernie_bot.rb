@@ -1,3 +1,4 @@
+require 'active_support'
 require_relative 'source_text'
 ## require '../project/bernie-bot/bernie_bot'
 
@@ -24,13 +25,13 @@ class BernieBot
     first_text = @texts.shuffle.first
     second_texts = @texts.find_all { |t| t.category == first_text.category }
     second_texts.delete_if { |t| ( t.first_part == first_text.first_part ) or ( !valid_tweet?("#{first_text.first_part} #{t.second_part}") ) }
-    return "NOT POSSIBLE: #{first_text.first_part}" if second_texts.empty?
+    return false, "NOT POSSIBLE: #{first_text.first_part}" if second_texts.empty?
     second_text = second_texts.shuffle.first
     result = "#{first_text.first_part} #{second_text.second_part}"
     if valid_tweet?(result)
-      return result
+      return true, result
     else
-      return "TOO LONG"
+      return false, "TOO LONG"
     end
   end
     
