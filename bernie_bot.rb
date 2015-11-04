@@ -209,7 +209,26 @@ class BernieBot
       second_part: "stand up to the billionaire class.",
       category: preposition
     })
-    
+    texts << SourceText.new({
+      first_part: "On immigration, we must",
+      second_part: "be aggressive in pursuing policies that are humane and sensible and that keep families together.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "Instead of encouraging more people to vote, Republicans have passed laws to",
+      second_part: "keep people away from the polls, especially low-income people.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "Democracy is not a spectator sport. We must be truly engaged if we want to",
+      second_part: "make real change. Go vote. #ElectionDay",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "I have always opposed Keystone XL. It isn't a distraction — it's a fundamental litmus test of your commitment to",
+      second_part: "battle climate change.",
+      category: preposition
+    })
     
 =begin
     texts << SourceText.new({
@@ -366,6 +385,12 @@ class BernieBot
       second_part: "automatically registered to vote.",
       category: verb_to_be
     })
+    texts << SourceText.new({
+      first_part: "We must fundamentally rewrite our trade policy so that American products, not American jobs, are",
+      second_part: "our No. 1 export.",
+      category: verb_to_be
+    })
+    
     
 =begin
     texts << SourceText.new({
@@ -439,6 +464,31 @@ class BernieBot
     texts << SourceText.new({
       first_part: "This campaign is sending a message to the billionaire class: you can’t have",
       second_part: "it all! #nhpolitics",
+      category: verb_to_have
+    })
+    texts << SourceText.new({
+      first_part: "Like many other polls, the NBC/WSJ poll shows our campaign is the best shot for",
+      second_part: "Democrats heading into the general.",
+      category: verb_to_have
+    })
+    texts << SourceText.new({
+      first_part: "If I'm \"finished,\" I don't know what it says about",
+      second_part: "Trump's situation when I'm 9pts ahead of him in the new NBC poll.",
+      category: verb_to_have
+    })
+    texts << SourceText.new({
+      first_part: "Billionaires should not be able to buy elections or candidates. We have got to overturn",
+      second_part: "the Citizens United Supreme Court decision.",
+      category: verb_to_have
+    })
+    texts << SourceText.new({
+      first_part: "We shouldn't be providing corporate welfare to multi-national corporations through",
+      second_part: "the Export-Import Bank.",
+      category: verb_to_have
+    })
+    texts << SourceText.new({
+      first_part: "We need pay equity in this country so that women make",
+      second_part: "what a man makes for doing the same work.",
       category: verb_to_have
     })
     
