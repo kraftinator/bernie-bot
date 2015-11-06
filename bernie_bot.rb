@@ -186,7 +186,7 @@ class BernieBot
     })
     texts << SourceText.new({
       first_part: "I voted against the USA Patriot Act and will continue to do all that I can to",
-      second_part: "prevent us from moving toward and Orwellian society.",
+      second_part: "prevent us from moving toward an Orwellian society.",
       category: preposition
     })
     texts << SourceText.new({
@@ -229,6 +229,43 @@ class BernieBot
       second_part: "battle climate change.",
       category: preposition
     })
+    texts << SourceText.new({
+      first_part: "One in five Americans today cannot afford to",
+      second_part: "fill the prescriptions their doctors write for them.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "Congress cannot regulate Wall Street. It is time to",
+      second_part: "break these too big to fail banks up.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "We cannot end DACA. We must fight to",
+      second_part: "expand this successful program to legal limits. A president must be consistent on immigration.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "We must convince students that if they participate in the political process we can",
+      second_part: "lower the outrageously high student debt they face.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "To my Republican colleagues I say:",
+      second_part: "worry less about your campaign contributions and worry more about your children.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "Every Democratic presidential candidate serious about addressing climate change should",
+      second_part: "pledge to end fossil fuel leasing on public lands.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "The science is clear: we need to act to",
+      second_part: "keep fossil fuels in the ground. #KeepItInTheGround",
+      category: preposition
+    })
+    
+    
     
 =begin
     texts << SourceText.new({
@@ -324,6 +361,17 @@ class BernieBot
       second_part: "one family owns more wealth than the bottom 130 million Americans. #nhpolitics",
       category: conjunction
     })
+    texts << SourceText.new({
+      first_part: "My friends, a political revolution is coming to New Hampshire and",
+      second_part: "it’s coming to America. #fitn",
+      category: conjunction
+    })
+    texts << SourceText.new({
+      first_part: "The scientific community has been virtually unanimous:",
+      second_part: "climate change is real. Our job is to aggressively transform our energy system.",
+      category: conjunction
+    })
+    
     
     
 =begin
@@ -389,7 +437,38 @@ class BernieBot
       first_part: "We must fundamentally rewrite our trade policy so that American products, not American jobs, are",
       second_part: "our No. 1 export.",
       category: verb_to_be
+    })    
+    texts << SourceText.new({
+      first_part: "The TPP is",
+      second_part: "a continuation of our disastrous trade policies that have devastated manufacturing cities and towns all over this country.",
+      category: verb_to_be
     })
+    texts << SourceText.new({
+      first_part: "Now that the text of the Trans-Pacific Partnership has finally been released, it is",
+      second_part: "even worse than I thought.",
+      category: verb_to_be
+    })    
+    texts << SourceText.new({
+      first_part: "We need a banking system that is",
+      second_part: "part of creating a productive economy, not a handful of huge banks that engage in reckless activities.",
+      category: verb_to_be
+    })
+    texts << SourceText.new({
+      first_part: "The only long-term solution to America's health care crisis is",
+      second_part: "a single-payer national health care program.",
+      category: verb_to_be
+    })
+    texts << SourceText.new({
+      first_part: "We must tell the fossil-fuel industry that their short-term profits are",
+      second_part: "less important than caring for our planet.",
+      category: verb_to_be
+    })
+    texts << SourceText.new({
+      first_part: "The debate is over. Climate change is real, it is caused by humans and it is",
+      second_part: "already causing devastating problems. #KeepItInTheGround",
+      category: verb_to_be
+    })
+    
     
     
 =begin
@@ -491,7 +570,11 @@ class BernieBot
       second_part: "what a man makes for doing the same work.",
       category: verb_to_have
     })
-    
+    texts << SourceText.new({
+      first_part: "We need trade policies in this country that work for",
+      second_part: "the working families of our nation.",
+      category: verb_to_have
+    })    
     
       
 =begin
