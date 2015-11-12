@@ -264,7 +264,46 @@ class BernieBot
       second_part: "keep fossil fuels in the ground. #KeepItInTheGround",
       category: preposition
     })
-    
+    texts << SourceText.new({
+      first_part: "If Teddy Roosevelt were alive today, he would say:",
+      second_part: "break up these too-big-to-fail banks.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "We already have the biggest military in the world, yet veterans",
+      second_part: "sleep out on the streets. Will Republicans talk about this? #GOPDebate",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "Let us stand today with the tens of millions of workers who are working hard to",
+      second_part: "put food on the table.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "Freedom of speech does not mean the freedom to",
+      second_part: "buy the United States government.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "I'm listening to the #BlackOnCampus conversation. It's time to",
+      second_part: "address structural racism on college campuses.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "Glad to see so many young people here today. It’s important to",
+      second_part: "understand the sacrifices veterans have made. #FITN",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "Republicans' family values are that our gay brothers and sisters shouldn't",
+      second_part: "be able to get married.",
+      category: preposition
+    })
+    texts << SourceText.new({
+      first_part: "I don’t believe it is a terribly radical idea to say that someone who works 40 hours a week should not",
+      second_part: "be living in poverty. #FightFor15",
+      category: preposition
+    })
     
     
 =begin
@@ -371,6 +410,22 @@ class BernieBot
       second_part: "climate change is real. Our job is to aggressively transform our energy system.",
       category: conjunction
     })
+    texts << SourceText.new({
+      first_part: "Bike canvassing is one way",
+      second_part: "our organizers in NH help reduce the use of fossil fuels while reaching voters. #fitn",
+      category: conjunction
+    })
+    texts << SourceText.new({
+      first_part: "Americans are working longer hours for lower wages and wondering how",
+      second_part: "they're going to retire with dignity.",
+      category: conjunction
+    })
+    texts << SourceText.new({
+      first_part: "If patriotism means anything, it means that",
+      second_part: "we do not turn our backs on those who defended us.",
+      category: conjunction
+    })
+    
     
     
     
@@ -466,6 +521,11 @@ class BernieBot
     texts << SourceText.new({
       first_part: "The debate is over. Climate change is real, it is caused by humans and it is",
       second_part: "already causing devastating problems. #KeepItInTheGround",
+      category: verb_to_be
+    })
+    texts << SourceText.new({
+      first_part: "As we look back through history, we know women were",
+      second_part: "at the forefront of every progressive victory in this country.",
       category: verb_to_be
     })
     
@@ -574,7 +634,33 @@ class BernieBot
       first_part: "We need trade policies in this country that work for",
       second_part: "the working families of our nation.",
       category: verb_to_have
-    })    
+    })
+    texts << SourceText.new({
+      first_part: "Republicans should worry more about their kids and grandchildren and the future of this planet than",
+      second_part: "their campaign contributors. #GOPDebate",
+      category: verb_to_have
+    })       
+    texts << SourceText.new({
+      first_part: "We will close the income inequality gap between",
+      second_part: "the rich and the rest of us.",
+      category: verb_to_have
+    })
+    texts << SourceText.new({
+      first_part: "The cost of war is real, and we have got to support",
+      second_part: "those people who have put their lives on the line defending this country.",
+      category: verb_to_have
+    })
+    texts << SourceText.new({
+      first_part: "Medicare for All would eliminate payments to",
+      second_part: "insurance companies that put profits before people.",
+      category: verb_to_have
+    })
+    texts << SourceText.new({
+      first_part: "Too often our Native American brothers and sisters have seen",
+      second_part: "corporate profits put ahead of their sovereign rights.",
+      category: verb_to_have
+    })
+    
     
       
 =begin
