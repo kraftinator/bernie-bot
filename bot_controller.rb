@@ -56,7 +56,7 @@ class BotController
   
   def setup_bots
     bots = []
-    bots << BernieBot.new
+    bots << BernieBot.new(@client)
     bots
   end
 
