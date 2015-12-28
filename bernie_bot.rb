@@ -178,7 +178,8 @@ class BernieBot
     @texts = []
     
     tweets = client.search("from:berniesanders -rt", result_type: "recent").take(100)
-    
+    tweets.concat( client.search("from:berniesanders -rt", result_type: "recent").take(100) )
+
     corpus_list = []
     tweets.each do |tweet|
       sentences = tweet.text.split('.')
