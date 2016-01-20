@@ -205,6 +205,7 @@ class BernieBot
       ###############################
       category = 'alpha'
       next if parse_text( corpus, category, "to address" )
+      next if parse_text( corpus, category, "to advance" )
       next if parse_text( corpus, category, "to answer" )
       next if parse_text( corpus, category, "to assassinate" )
       next if parse_text( corpus, category, "to attack" )
