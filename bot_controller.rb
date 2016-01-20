@@ -34,12 +34,10 @@ class BotController
     end
   end
   
-  def duplicate?( text )
-    tweets = @client.user_timeline
-    tweets.each do |tweet|
-      return true if tweet.text == text
-    end
-    false
+  def duplicate?( result )
+    search_str = "from:#{@user_screen_name} #{result}"
+    results = @client.search( search_str )
+    results.any? ? true : false
   end
   
   def list

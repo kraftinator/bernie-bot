@@ -7,10 +7,16 @@ class BernieBot
   MAX_CHARS = 140
   
   attr_accessor :texts
-  
+=begin  
   def initialize( client )
     #@texts = source_texts
     @texts = source_texts_new(client)
+  end
+=end
+  
+  def initialize( client )
+    @texts = source_texts( client )
+    #@texts = source_texts_new_test
   end
   
   def tweet_length(text)
@@ -22,6 +28,311 @@ class BernieBot
     tweet_length(text) <= MAX_CHARS ? true : false
   end
   
+  def build_text
+    first_text = @texts.shuffle.first
+    second_texts = @texts.find_all { |t| t.category == first_text.category }
+    second_texts.delete_if { |t| ( t.first_part == first_text.first_part ) or ( !valid_tweet?("#{first_text.first_part} #{t.second_part}") ) }
+    return false, "NOT POSSIBLE: #{first_text.first_part}" if second_texts.empty?
+    second_text = second_texts.shuffle.first
+    result = "#{first_text.first_part} #{second_text.second_part}"
+    
+    ## Return false if too many colons
+    return false, "TOO MANY COLONS: #{result}" if result.count(':') > 1
+    
+    ## Return false for certain word combos 
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /because for/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /because was/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /can have to/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /from teens pleads/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /it should it/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /might it/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /one who aren't/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /shall of/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /should do that is/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /their will/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /we should it/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /when is to/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /when here/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /when also/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /when was/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /when would/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /which also to/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /while is/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /while of/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /will for/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /will it be/i
+    
+    ################
+    ## Edit result
+    ################
+    
+    # Double quotation marks
+    result.gsub!('“', '"')
+    result.gsub!('”', '"')
+    
+    # Single quotaion marks
+    result.gsub!(" '", " ")
+    result.gsub!("' ", " ")
+    
+    result.gsub!(" ’", " ")
+    result.gsub!("’ ", " ")
+
+    result.gsub!(" ‘", " ")
+    result.gsub!("‘ ", " ")
+
+    result.gsub!("'.", ".")
+    result.gsub!("’.", ".")
+    result.gsub!("‘.", ".")
+    
+    ## Validate parentheses
+    left_parentheses = result.count("(")
+    right_parentheses = result.count(")")
+    return false, "INVALID PARENTHESES: #{result}" if left_parentheses != right_parentheses
+    
+    quote_count = result.count('"')
+    return false, "INVALID QUOTES: #{result}" if quote_count > 0 and quote_count.odd?
+      ## Remove rogue quotes
+      #result.gsub!('"', '')
+      #end
+    
+    ## Remove extra period
+    result.gsub!("?.", "?")
+    result.gsub!("!.", "!")
+    result.gsub!(":.", ":")
+    result.gsub!("..", ".")
+    if result.split(//).last(2).join == ".." and result.split(//).last(3).join != "..."
+      result = result.chomp(".")
+    end
+
+    if result[0] == '@'
+      result = ".#{result}"
+    end
+    
+    ## Unescape result
+    result = CGI.unescapeHTML( result )
+    
+    if valid_tweet?(result)
+      return true, result
+    else
+      return false, "TOO LONG"
+    end
+  end
+  
+  def source_texts_new_test
+    @texts = []
+    corpus_list = ["Making public colleges and universities tuition free would save middle-class families sending kids to college $9,400 a year on average..", "Join my friend @billmckibben for a Town Hall in Portsmouth, New Hampshire tonight: #FITN #NHPolitics.", "It's wrong when over the last 30 years trillions of dollars have been transferred from the middle class to the top one-tenth of one percent..", "In a democratic society, politics should not be treated like a baseball game or a soap opera. We need discussion about serious issues..", "I'll be on the Rachel @maddow show on MSNBC shortly. Tune in now. #iacaucus.", "Volunteers like Braden Joplin are the heart and soul of the democratic process. Our thoughts are with his family..", "I am asking people not just for your vote, but to be part of a revolution to transform our country. #iacaucus.", "Now is NOT the time for thinking small or the same-old, same-old establishment politics and stale inside-the-beltway ideas..", "A way to provide banking opportunities for low-income communities is to allow the U.S. Postal Service to engage in basic banking services..", "Join Dr. @CornelWest, scholar Adolph Reed and others for a Higher Ed for Bernie Town Hall in Columbia tomorrow:.", "If Congress continues to fail to act, as president I would uphold and expand the president's action..", "The president did exactly the right thing and I'm confident he has the legal authority to take this bold action..", "Americans understand that corporate greed is destroying our country. They fully understand that American politics is dominated by big money..", "Real Wall Street reform means breaking up the big banks and re-establishing firewalls that separates risk taking from traditional banking..", "We need to look at addiction not as a crime, but a health issue. #BernieInAL.", "Health care is a right, not a privilege. That's why my plan will insure every American..", "Some people told me Alabama was a conservative state. I guess not. Watch live: #BernieInAL.", "This is a campaign of the people, by the people, and for the people. #BernieinAL.", "Tune in LIVE to @CornelWest and @ninaturner in Alabama here: #BernieinAL.", "Tune in LIVE as we address thousands who came out to Birmingham to say: “Enough is enough!\" #BernieinAL.", "Excited to be in Birmingham tonight for a rally to discuss the issues facing our nation. #BernieInAL.", "Health care should be a right of all people, not a privilege. This is not a radical idea. It exists in every other major country on earth..", "This country was built by immigrants. I believe we are a nation that wants to see comprehensive immigration reform passed..", "There's a disparity in education for children in poor communities. We’ve gotta change that..", "Higher education must be a right for all - not just wealthy families..", "There are no excuses. The governor long ago knew about the lead in Flint’s water. He did nothing. Gov. Snyder should resign. #DemDebate.", "Bernie’s immigration plan is the gold standard. \"We hope [Hillary] is inspired to match his boldness.” -@nytimes.", "If elected president, Goldman Sachs will not be in my cabinet. #DebateWithBernie.", "Bernie supports a defense budget that looks after our national security interests not the profits of defense contractors. #DebateWithBernie.", "Bernie is the only candidate that voted against giving the NSA power to spy on Americans. #DebateWithBernie.", "We can protect America without violating our citizens' constitutional rights. That's why Bernie voted against the Patriot Act. #DemDebate.", "The test of a great nation is not how many wars it can engage in, but how it can resolve international conflicts in a peaceful manner..", "It's amazing that Republicans are so owned by fossil fuel contributors that they don't have the courage to listen to science. #DemDebate.", "We bailed out Wall Street, it’s their turn to bail out the middle class and help our kids go to college tuition-free. #DebateWithBernie.", "Making public colleges and universities tuition free would save middle-class families sending kids to college $9,400 a year. #DemDebate.", "I find it strange that the kid who smokes marijuana gets arrested but the crooks on Wall Street get off scot free. #DemDebate.", "I don't get personal speaking fees from Goldman Sachs. #DebateWithBernie.", "We don't have a super PAC. We don't want a super PAC. And we don't NEED a super PAC. This is a people’s campaign. #FeelTheBern.", "Looking forward to your plan, @HillaryClinton. #DemDebate.", "#MedicareForAll will save the American people and businesses over $6 trillion in the next decade..", "Under Bernie's plan, the average family would pay less for an entire year of health care than they currently do in a month. #DemDebate.", "Health care should be a right of all people, not a privilege. This is not a radical idea. It exists in every other major country on earth..", "Bernie's plan will expand on the ACA and create a system that puts people's health over profits. #DemDebate.", "Addiction is a disease, not a criminal activity. #DemDebate.", "We must demilitarize our police forces so they don’t look and act like invading armies. #DebateWithBernie.", "We need police forces that reflect the diversity of our communities, including in training academies and leadership. #DemDebate.", "Whenever anyone is killed in police custody it should automatically trigger a federal investigation. #DemDebate.", "Polls confirm: Bernie is the best Democratic candidate to take on Republicans in the general election. #DemDebate.", "We must make certain that people who should not have guns, do not have guns. We must fight for sensible gun control legislation..", "In 1988, Bernie stood up to the gun lobby and said we should not be selling military assault weapons. #DemDebate.", "Our campaign is about thinking big: health care for all, $15 minimum wage and creating millions of new jobs. #DebateWithBernie.", "This campaign is about a political revolution to transform our country economically, socially and environmentally. #DebateWithBernie.", "We need to raise the minimum wage to a living wage. #FightFor15.", "Before we head to the #DemDebate, I'll be rallying with workers in Charleston in the #FightFor15 and a union..", "#MedicareForAll means no more copays, no more deductibles and no more fighting with insurance companies when they fail to pay for charges..", "Es hora de unirnos a las naciones que garantizan la atención médica como un derecho para todos, no un privilegio..", "My #MedicareForAll plan is the only plan that provides health care to ALL Americans, including the 50 million uninsured or underinsured..", "It’s time to join every other major nation and guarantee health care to all as a right, not a privilege..", "When you’re sick you should go to the doctor. And when you come out of the hospital you should not come out in bankruptcy. #MedicareForAll.", "We're reminded when we knock doors in the snow that our environment is worth fighting for. #FITN.", "Live with @KillerMike: “I’ll give you an example of our broken criminal justice system...”.", "Streaming live right now discussing MLK’s legacy:.", "Happening now. Bernie, Senator Turner, Killer Mike and Dr. Cornel West LIVE:.", "We have more people in jail than any other country on earth including China, an authoritarian country 4 times our size..", "We are going to create a nation that works for all of us, not just for a handful of millionaires and billionaires..", "When it comes to our responsibilities as human beings and parents, it is imperative our planet stays habitable for our kids and grandkids..", "Actor Stephen Bishop, Senator @ninaturner and Dr. @CornelWest enjoying @ClyburnSC06's Charleston famous fish fry..", "We can live in a country where every person who dreams of becoming a citizen has a rational path forward, not just a dark corner to hide in..", "The greed of the pharmaceutical industry is killing Americans. That cannot continue..", "Congrats to Zeta Phi Beta and members of my team @cspain1920, @o_kersh and @bremaxwell on 96 years of service. Happy Founders' Day. #ZPHIB96.", "Congrats, @POTUS. The test of a great nation is how we use our strength to resolve conflicts in a peaceful way..", "Not one major Wall Street executive has been prosecuted for the near collapse of our economy. That will change under my administration..", "I will fight for a 21st Century Glass-Steagall Act to clearly separate commercial banking, investment banking, and insurance services..", "This good news shows that diplomacy can work even in this volatile region of the world..", "Children in Flint will be plagued with brain damage and other health problems. The people of Flint deserve more than an apology..", "Because of the conduct by Gov. Snyder's administration, families will suffer from lead poisoning for the rest of their lives..", "There are no excuses. The governor long ago knew about the lead in Flint's water. He did nothing. Gov. Snyder should resign..", "Sanders Statement: Michigan Governor Must Resign over Flint Lead-Poisoning Crisis.", "Three out of the four largest financial institutions are bigger now than before we bailed them out..", "Kids are jailed for possessing marijuana or other minor crimes. Nothing happens to Wall Street execs whose illegal behavior harmed millions..", "The reality is that Congress doesn’t regulate Wall Street. Wall Street, its lobbyists and their billions of dollars regulate Congress..", "And within one year, my administration will break these institutions up so that they no longer pose a grave threat to the economy..", "During the first 100 days of my administration, the Treasury Department will create a too-big-to fail list of banks and insurance companies..", "Under my administration, Goldman Sachs execs and other Wall Street CEOs won’t go through the revolving door from Wall Street to government..", "We need federal prosecutors and regulators with clear track records of standing up to the greed and recklessness on Wall Street..", "The Koch brothers are spending huge sums of money to sow doubt about climate change. The reality is climate change is real and man-made..", "It is absolutely vital that we act boldly to move our energy system away from fossil fuels..", "The debate is over. Climate change is real and caused by human activity. This planet and its people are in trouble..", "As a society which proclaims human freedom as its goal, the United States must work unceasingly to end discrimination against all people..", "It's unbelievable that the Koch brothers saw their wealth increase by $18 billion in 2 years, yet paid lower taxes than the middle class..", "As a nation, we must remain consistent with our immigrant tradition by welcoming those fleeing violence and ending the raids..", "Our job is to tell every kid in this country, that if they work hard, regardless of family income, they will get a college education..", "I got a message for the Walton family of Walmart: Get off of welfare and pay your workers a living wage..", "Americans understand we have a rigged economy, where 47 million people are living in poverty and almost all new income is going to the top..", "We have to make Congress respond to the needs of the people, not big money..", "\"This country has socialism for the rich, rugged individualism for the poor.\" -Dr. Martin Luther King Jr. #MLKDay.", "\"Call it democracy, or call it democratic socialism, but there must be a better distribution of wealth.\" -Dr. Martin Luther King Jr. #MLKDay.", "Whenever anybody in this country is killed while in police custody, it should automatically trigger a U.S. attorney general's investigation..", "As we honor Dr. King, we must not only remember what he stood for, but also pledge to continue his vision to transform our country. #MLKDay.", "The black unemployment rate has remained roughly twice as high as the white rate over the last 40 years. This is unacceptable..", "We need to end prisons for profit, which result in an over-incentive to arrest, jail and detain, in order to keep prison beds full..", "The war on drugs has been a failure and has ruined the lives of too many people..", "It's time for the US to join almost every other Western, industrialized country in saying no to the death penalty..", "We are spending almost twice as much per capita on health care as does any other nation..", "The current federal minimum wage of $7.25 an hour is a starvation wage and must be raised to a living wage!.", "Climate change is real, it is caused by human activity and it is already causing huge devastation across the world..", "When you're sick, you should have access to health care. When you go to the hospital, you should not come out in bankruptcy..", "The measure of success for law enforcement should not be how many people get locked up..", "Today, if an employee is engaged in a union organizing campaign, they have a one in five chance of getting fired. This has got to end!.", "It's embarrassing that 20% of kids in America are living in poverty, the highest childhood poverty rate of any major developed country..", "It is unacceptable that the typical female worker made $1,337 less last year than she did in 2007..", "We must continue to boldly take on powerful political forces who are more concerned with short-term profits than the future of the planet..", "We can create a government that works for all of us, not just powerful special interests. This is not a radical idea..", "We have a moral responsibility to leave our kids a healthy planet. The best way we can do that is by keeping fossil fuels in the ground..", "Unbelievably, today in many states, it is still legal to fire someone for being gay. That is unacceptable and must change..", "NEWS: Sanders statement on Obama's decision to halt new federal coal leases on public lands.", "America should be known as the country with the best educated population in the world, not the country with the most jailed population..", "We must move away from the militarization of police forces and completely redo how we train police officers..", "Sen. Ted Kennedy: Health care is \"a matter of right and not of privilege.\".", "One family will spend more money this election cycle than either the Democratic or Republican parties. This isn't democracy. It's oligarchy..", "It seems to me that instead of building more jails, maybe, just maybe, we should be putting money into education and jobs for our kids..", "I have spent my career fighting for something that I consider to be a human right. That human right is health care..", "We're the only major country that doesn’t guarantee healthcare to all as a right, yet we spend more per capita on healthcare than any nation.", "I say to Walmart: Get off of welfare. Start paying your employees a living wage!.", "We'll no longer tolerate an economy and political system rigged by Wall St. to benefit the wealthiest at the expense of everyone else..", "The greed of the pharmaceutical industry is killing Americans. That cannot continue..", "29 million Americans still have no health insurance. We must resolve that health care is a right, not a privilege of those who can afford it.", "We need to change campaign finance so the work being done by Congress reflects the needs of working families, not just the billionaire class.", "There is no rational economic reason why women should earn 78 cents on the dollar compared to men. That has got to change..", "I appreciated @POTUS's point that we need more civil politics, to get big money out of politics, and to revitalize American democracy..", "NEWS: Sanders Statement on the State of the Union Address.", "We must make the Fed a more democratic institution, responsive to the needs of ordinary Americans rather than the billionaires on Wall St..", "Too much of the Fed’s business is conducted in secret, known only to the bankers on its various boards and committees..", "NEWS: Sanders Supports Audit the Fed Bill.", "Medicare for all would guarantee health care for all people and save middle class families and our entire nation lot of money..", "This country was built by immigrants. I believe we are a nation that wants to see comprehensive immigration reform passed..", "We must do everything we can to make sure the generation that fought to defend democracy and built our great nation does not go hungry..", "We need someone who will work to lower drug prices &amp; implement rules to import brand-name drugs from Canada. Dr. Califf is not that person..", "When millions of Americans cannot afford the drugs they need, we need a leader at the FDA who is prepared to stand up to the drug companies..", "It is unacceptable that the monthly cost of cancer drugs has more than doubled over the last ten years to $9,900..", "It's unacceptable that 1 out of 5 Americans between the ages of 19 and 64 cannot afford the drugs they are prescribed..", "NEWS: Sanders Votes No on FDA Nominee.", "Health care should be a right of all people, not a privilege. This is not a radical idea. It exists in every other major country on earth..", "In my view, corporations should not be allowed to make a profit by building more jails and keeping more Americans behind bars..", "It makes no sense to me that the United States of America has more jails and prisons than colleges and universities..", "In 2015, a college degree is equivalent to what a high school degree was 50 years ago. Public colleges should be tuition free..", "We can live in a nation where everyone, no matter their race, religion or sexual orientation realizes the full promise of equality..", "In my view, no single financial institution should have holdings so extensive that its failure could send the world economy into crisis..", "We have a situation now where Wall Street banks are not only too big to fail, they are too big to jail. That has got to change.."]    
+    build_source_texts( corpus_list )
+    texts
+  end
+  
+  def source_texts( client )
+    
+    @texts = []
+    
+    tweets = []
+    tweets << client.search("from:BernieSanders -rt", result_type: "recent").take(100)
+    tweets << client.search("from:SenSanders -rt", result_type: "recent").take(100)
+    tweets.flatten!
+
+    ## Build corpus
+    corpus_list = []
+    tweets.each do |tweet|
+      text = tweet.text
+      next if text[0] == '@'
+      next if text[1] == '@'
+      next if text =~ /\?/
+      next if text =~ /\n/
+      next if text =~ /\=/
+      words = text.split(' ')
+      next if words.size < 5
+      text = text.gsub(/https:\/\/[\w\.:\/]+/, '').squeeze(' ')
+      corpus_list << "#{text.strip}."
+    end
+    
+    build_source_texts( corpus_list ) 
+ 
+    texts
+    
+  end
+  
+  def parse_text( corpus, category, keyword )
+    m = corpus.match( / #{keyword} /i )
+    if m
+      location = corpus =~ /#{keyword}/i
+      return false if location < 15
+      return false if (corpus.size-location < 15)
+      
+      words = keyword.split(' ')
+      if words.size == 1
+        @texts << SourceText.new({
+          first_part: "#{m.pre_match}#{m.to_s}".strip,
+          second_part: "#{m.post_match}",
+          category: category
+        })
+      elsif words.size == 2
+        @texts << SourceText.new({
+          first_part: "#{m.pre_match} #{words[0]}".strip,
+          second_part: "#{words[1]} #{m.post_match}",
+          category: category
+        })
+      else
+        return false
+      end
+      
+      return true    
+    end
+    false
+  end
+  
+  def build_source_texts( corpus_list )
+    
+    corpus_list.each do |corpus|
+      
+      ###############################
+      ## Zeta - OFFICIAL
+      ###############################
+      category = "zeta"
+      next if parse_text( corpus, category, "from" )
+
+      ###############################
+      ## Epsilon - OFFICIAL
+      ###############################
+      category = "epsilon"
+      next if parse_text( corpus, category, "with" )
+      
+      ###############################
+      ## Alpha - OFFICIAL
+      ###############################
+      category = 'alpha'
+      next if parse_text( corpus, category, "to address" )
+      next if parse_text( corpus, category, "to answer" )
+      next if parse_text( corpus, category, "to assassinate" )
+      next if parse_text( corpus, category, "to attack" )
+      next if parse_text( corpus, category, "to attend" )
+      next if parse_text( corpus, category, "to avoid" )
+      next if parse_text( corpus, category, "to battle" )
+      next if parse_text( corpus, category, "to be" )
+      next if parse_text( corpus, category, "to beg" )
+      next if parse_text( corpus, category, "to blow" )
+      next if parse_text( corpus, category, "to bomb" )
+      next if parse_text( corpus, category, "to break" )
+      next if parse_text( corpus, category, "to build" )
+      next if parse_text( corpus, category, "to buy" )
+      next if parse_text( corpus, category, "to call" )
+      next if parse_text( corpus, category, "to close" )
+      next if parse_text( corpus, category, "to commemorate" )
+      next if parse_text( corpus, category, "to control" )
+      next if parse_text( corpus, category, "to create" )
+      next if parse_text( corpus, category, "to criminalize" )
+      next if parse_text( corpus, category, "to cut" )
+      next if parse_text( corpus, category, "to deliver" )
+      next if parse_text( corpus, category, "to deport" )
+      next if parse_text( corpus, category, "to destroy" )
+      next if parse_text( corpus, category, "to develop" ) 
+      next if parse_text( corpus, category, "to dig" ) 
+      next if parse_text( corpus, category, "to drive" )
+      next if parse_text( corpus, category, "to drop" ) 
+      next if parse_text( corpus, category, "to eat" )  
+      next if parse_text( corpus, category, "to end" )  
+      next if parse_text( corpus, category, "to ensure" )
+      next if parse_text( corpus, category, "to expand" )   
+      next if parse_text( corpus, category, "to fight" )      
+      next if parse_text( corpus, category, "to fund" )
+      next if parse_text( corpus, category, "to get" )
+      next if parse_text( corpus, category, "to give" )
+      next if parse_text( corpus, category, "to grasp" )
+      next if parse_text( corpus, category, "to have" )  
+      next if parse_text( corpus, category, "to here" )  
+      next if parse_text( corpus, category, "to import" )
+      next if parse_text( corpus, category, "to integrate" )
+      next if parse_text( corpus, category, "to join" )
+      next if parse_text( corpus, category, "to judge" )
+      next if parse_text( corpus, category, "to jump" )
+      next if parse_text( corpus, category, "to keep" )
+      next if parse_text( corpus, category, "to kidnap" )
+      next if parse_text( corpus, category, "to kill" )
+      next if parse_text( corpus, category, "to limit" )
+      next if parse_text( corpus, category, "to make" )
+      next if parse_text( corpus, category, "to mandate" )
+      next if parse_text( corpus, category, "to mention" )
+      next if parse_text( corpus, category, "to move" )
+      next if parse_text( corpus, category, "to offend" )
+      next if parse_text( corpus, category, "to operate" )
+      next if parse_text( corpus, category, "to oppose" )
+      next if parse_text( corpus, category, "to prevent" )
+      next if parse_text( corpus, category, "to promote" )
+      next if parse_text( corpus, category, "to protect" )
+      next if parse_text( corpus, category, "to pull" )
+      next if parse_text( corpus, category, "to punish" )
+      next if parse_text( corpus, category, "to pursuade" )
+      next if parse_text( corpus, category, "to quit" )
+      next if parse_text( corpus, category, "to rebuild" )
+      next if parse_text( corpus, category, "to refuse" )
+      next if parse_text( corpus, category, "to return" )
+      next if parse_text( corpus, category, "to sell" )
+      next if parse_text( corpus, category, "to share" )
+      next if parse_text( corpus, category, "to shut" )
+      next if parse_text( corpus, category, "to spend" )
+      next if parse_text( corpus, category, "to stop" )
+      next if parse_text( corpus, category, "to support" )
+      next if parse_text( corpus, category, "to scrap" )
+      next if parse_text( corpus, category, "to understand" )
+      next if parse_text( corpus, category, "to take" )
+      next if parse_text( corpus, category, "to target" )
+      next if parse_text( corpus, category, "to think" )
+      next if parse_text( corpus, category, "to tweet" )
+      next if parse_text( corpus, category, "to wear" )
+      next if parse_text( corpus, category, "to win" )
+      next if parse_text( corpus, category, "to work" )
+      #"Obama wants to import this behavior."
+      
+      ###############################
+      ## Delta - OFFICIAL
+      ###############################
+      category = "delta"
+      next if parse_text( corpus, category, "will" )
+      next if parse_text( corpus, category, "might" )
+      next if parse_text( corpus, category, "shall" )
+      next if parse_text( corpus, category, "should" )
+      next if parse_text( corpus, category, "would" )
+      next if parse_text( corpus, category, "could" )
+      next if parse_text( corpus, category, "can" )
+      #next if parse_text( corpus, category, "does" )
+
+      ###############################
+      ## Gamma - OFFICIAL last
+      ###############################
+      category = "gamma"
+      next if parse_text( corpus, category, "because" )
+      next if parse_text( corpus, category, "when" )
+      next if parse_text( corpus, category, "but" )
+      next if parse_text( corpus, category, "which" )
+      next if parse_text( corpus, category, "while" )
+      next if parse_text( corpus, category, "that the" )
+      next if parse_text( corpus, category, "that they" )
+      next if parse_text( corpus, category, "that a" )
+      
+      ###############################
+      ## Omega - OFFICIAL
+      ###############################
+      category = "omega"
+      next if parse_text( corpus, category, "who" )
+      
+      ###############################
+      ## Theta - OFFICIAL
+      ###############################
+      category = "theta"
+      next if parse_text( corpus, category, "is a" )
+      next if parse_text( corpus, category, "was a" )
+          
+    end
+
+  end
+  
+  
+  
+  
+=begin  
   def build_text
     first_text = @texts.shuffle.first
     second_texts = @texts.find_all { |t| t.category == first_text.category }
@@ -59,20 +370,6 @@ class BernieBot
     @texts = []
     
     alpha = "alpha"
-=begin
-    tweets = client.search("from:berniesanders -rt", result_type: "recent").take(100)
-    
-    corpus_list = []
-    tweets.each do |tweet|
-      sentences = tweet.text.split('.')
-      sentences.each do |sentence|
-        next if sentence =~ /http/
-        words = sentence.split(' ')
-        next if words.size < 5
-        corpus_list << "#{sentence.strip}."
-      end
-    end
-=end
     
     corpus_list = ["In my view, some of the real heroines in our country today are single moms.", "Our nation has always been a beacon of hope, a refuge for the oppressed.", "We cannot turn our backs on that essential element of who we are as a nation.", "I'm running for president because the middle class is disappearing and more than half of new income is going to the top 1 percent.", "The health insurance lobbyists and big pharmaceutical companies try to make \"national health care\" sound scary.", "Too many lives have been destroyed because of police records.", "It is not their kids who are going into war.", "You’ll forgive me, this is an emotional issue for me.", "We must take steps to protect children and families seeking refuge here, not cast them out.", "We who are parents should ask ourselves what we would do if our children faced the danger and violence these children do?.", "Very disturbed by reports that the government may commence raids to deport families who've fled here to escape violence in Central America.", "When they divide us up, they win.", "When we stand together as one people, we win.", "We should not be firing teachers, we should be hiring teachers.", "School teachers and educators are real American heroes.", "Don't know how to break this to you, but Trump has discovered that women go to the bathroom.", "If Congress does not act, we will use the executive authority of the president to stop the dividing up of families.", "You want to keep the minimum wage low, and give tax breaks to millionaires.", "@realDonaldTrump, that is not what makes America great.", "Any official who helped suppress the videotape of Laquan McDonald’s murder should be held accountable.", "Garcia for inviting me to Chicago today.", "Two agents for real change.", "Reforming our criminal justice system is one of the most important things that a President can do.", "Corporate America and Wall Street: you can hate me all you want, but we’re going to end your greed.", "We need to end mandatory minimum sentencing and give judges the discretion to better tailor sentences to the specific facts of a given case.", "We cannot jail our way out of health problems like drug addiction or social and economic problems like poverty.", "Spending some time tonight with @CornelWest, @NinaTurner, @JesusChuyGar and @KillerMike in Chicago.", "If you don’t have a lot of money and you have a high health insurance deductible, you’re not gonna go to the doctor.", "I’m getting a very good feeling about Iowa.", "We have to ask ourselves, “Is it morally acceptable, is it economically sustainable, that so few have so much while so many have so little?”.", "This election is not just about electing a President.", "Far more significantly, it is about transforming America.", "We need to tell the drug companies to stop ripping off the American people.", "To rein in Wall Street, we should begin by reforming the Federal Reserve.", "There comes a time when you have to take on the establishment and not be part of that establishment.", "There is nothing that is more important than passing on a Mother Earth that is healthy and habitable for our kids and grandchildren.", "Climate change is real and caused by human activity.", "It's already causing devastating problems around the world.", "It’s all hands on deck for a pre-holiday phone bank.", "We're going to move to public funding of elections so candidates don't have to beg the wealthy and powerful for money when they want to run.", "You have a right to health care regardless of whether you are rich or poor.", "The Koch brothers are prepared to spend $889 million this election to end Social Security and dismantle our safety net.", "I am going to take on Wall Street.", "They do not like me today.", "They will like me even less if I am elected president.", "Congress bailed out Wall St.", "because it was too big to fail.", "In my view, if a bank is too big to fail, it's too big to exist.", "We're gonna have some fun, we're gonna make a political revolution, we're gonna transform America.", "Other than that, not much.", "The second 100 days of the political revolution.", "I believe that we need a political revolution.", "The same old, same old just isn't going to do it.", "We have to be bold.", "You are looking at one candidate for president who does not have a super PAC and I’m damn proud of that.", "Despite growing poverty among seniors, Republicans want more austerity for the elderly and more tax breaks for the rich.", "If we're going to stand up to the greed of the billionaire class and the greed of corporate America, I accept Wall Street not liking me.", "We have a broken immigration system that divides families and keeps millions of hard-working people in the shadows.", "\"I guess Christmas Eve was booked.", "” - Michael Briggs, Comms.", "The time is now for the United States to end capital punishment.", "Voter ID laws aren't intended to discourage fraud, they are intended to discourage voting.", "If we are to retain the fundamentals of American democracy, we need to overturn the disastrous Citizens United Supreme Court decision.", "We must convince students that if they participate in the political process we can lower the outrageously high student debt they face.", "Let’s be clear: in terms of protecting the needs of our families the United States lags behind virtually every major country on earth.", "The fossil fuel industry is destroying the planet with impunity and getting rich while doing it.", "This campaign is about the needs of the American people, and the proposals that effectively address those needs.", "I support 12 weeks of paid leave for every worker.", "Say you support paid leave for mothers &amp; fathers too.", "We now have the highest incarceration rate in the entire world with over 2 million in prison and millions more on probation or parole.", "Post-debate breakfast from this morning at IHOP in Bedford, New Hampshire.", "\"Get in on the love train.", "That’s what Bernie Sanders’ campaign is.", "Corporate greed is rampant, and the very rich keep growing richer while everyone else grows poorer.", "This campaign will be driven by issues and serious debate.", "The United States once led the world in terms of the percentage of our young people who had college degrees.", "Today we’re now in 12th place.", "I got into politics not to figure out how to become President.", "I got into politics because I give a damn.", "Addiction is a disease, not a criminal activity.", "Addiction is ravaging families and communities in NH.", "This is a crisis, and we need to treat it as a health issue—not throw people in jail.", "I know you have heard these names before but they bear repeating so we do not lose sight of the real human price being paid.", "Michael Brown, Eric Garner, Jessica Hernandez, Freddie Gray, Sandra Bland, Tamir Rice, Samuel Dubose, Rekia Boyd and too many more.", "Any serious criminal justice reform must include removing marijuana from the Controlled Substances Act.", "We need to rethink the \"War on Drugs\" and treat substance abuse as a serious health issue, not a criminal issue.", "'Socialist' programs from FDR and LBJ:\n✅Social Security\n✅Minimum Wage\n✅Medicare and Medicaid\n✅40-hour work week\n#DemDebate.", "When a husband can’t get time off to care for his cancer-stricken wife, that is not a family value.", "Medicare for All would eliminate payments to insurance companies that put profits before people.", "Bernie’s college plan is the only plan that affords lower-income kids the same opportunity for a quality education.", "CEO's of large multinationals may like @HillaryClinton, but they ain't gonna like me.", "We need debt-free college and free tuition is the best way to get there.", "I don’t think it’s a radical idea that in the richest country in the history of the world health care should be a right, not a privilege.", "Bernie helped lead the effort against @billclinton who thought it would be a great idea to deregulate Wall Street.", "\"The greed of the billionaire class, the greed of Wall Street is destroying this economy.", "We do not have a super PAC.", "We do not want the money of corporate America.", "This is a people’s campaign.", "You can’t take on Wall Street banks and billionaires by taking their money.", "A $1 trillion investment in infrastructure could create 13 million decent paying jobs.", "Invest in infrastructure, not more war.", "Equal pay for equal work.", "It’s not a radical idea.", "\"I worry that @HillaryClinton is too much into regime change and too aggressive without knowing what the unintended consequences might be.", "Bernie supports a defense budget that secures our national security interests not the profits of defense contractors.", "\"I listened to what Bush and Cheney had to say about Iraq.", "I listened carefully, and I didn't believe them so I voted against the war.", "Qatar will spend $200 billion on the 2022 World Cup – $200 billion a soccer event, yet very little to fight against ISIS.", "\"I voted against the war in Iraq.", "That was the right vote.", "We must be vigorous in combatting terrorism, but we can’t do it alone.", "We will not turn our backs on the refugees who are fleeing Syria and Afghanistan.", "“Trump thinks lower wages are a good idea.", "I believe we must stand together.", "We can not be divided by race or religion.", "It's time to strengthen gun safety laws:\n✅Universal background checks\n✅Assault weapon ban\n✅Stricter gun trafficking laws\n#DebateWithBernie.", "There’s only one candidate on stage who voted against (and led the opposition to) the Iraq War.", "✅America’s 20 wealthiest people now own more wealth than the bottom half of the American population combined.", "Let’s talk about data that matters to working families:\n✅47 million are living in poverty\n✅51% of African-American youth are unemployed.", "I am running for president because it is too late for establishment politics and economics.", "Change never takes place from the top down.", "It always takes place from the bottom up.", "Most new wealth flows to the top 1 percent.", "It's a system held in place by corrupt politics.", "Make sure to add Bernie."] 
     corpus_list = ["\"Government by organized money is just as dangerous as government by organized mob.", "Calling voters is one of highest impact things you can do to help our campaign.", "The greed of corporate America is destroying our economy.", "You have to take them on.", "I'm running for president because a handful of billionaires and wealthy families are trying to buy elections just to make themselves richer.", "It is my very strong inclination that if Sandra Bland was a white middle-class woman that would not have happened.", "What the polls are showing is the American people are responding to our message and we are on a path to victory.", "This morning I’ll be on NBC’s @MeetThePress and CBS @FaceTheNation.", "Criminal justice reform must be the civil rights issue of the 21st century and the first piece has to be police reform.", "Today, 29 million of our sisters and brothers are without health care.", "We can and must do better.", "I'm running for president because it is harder than ever for students to pay for college and for working parents to afford daycare.", "I will do everything that I can to make sure that the United States does not get involved in another quagmire like we did in Iraq.", "I need you to help me get out the vote.", "It's time to end religious bigotry and build a nation in which we all stand together and condemn the anti-Muslim rhetoric we're hearing.", "We would not tolerate the head of Exxon Mobil running the Environmental Protection Agency.", "A single-payer system already exists in the United States.", "It's called Medicare and the people enrolled give it high marks.", "Every man, woman and child in our country should be able to access quality care regardless of their income.", "In my view, some of the real heroines in our country today are single moms.", "Our nation has always been a beacon of hope, a refuge for the oppressed.", "We cannot turn our backs on that essential element of who we are as a nation.", "I'm running for president because the middle class is disappearing and more than half of new income is going to the top 1 percent.", "The health insurance lobbyists and big pharmaceutical companies try to make \"national health care\" sound scary.", "Too many lives have been destroyed because of police records.", "It is not their kids who are going into war.", "You’ll forgive me, this is an emotional issue for me.", "We must take steps to protect children and families seeking refuge here, not cast them out.", "We who are parents should ask ourselves what we would do if our children faced the danger and violence these children do?.", "Very disturbed by reports that the government may commence raids to deport families who've fled here to escape violence in Central America.", "When they divide us up, they win.", "When we stand together as one people, we win.", "We should not be firing teachers, we should be hiring teachers.", "School teachers and educators are real American heroes.", "Don't know how to break this to you, but Trump has discovered that women go to the bathroom.", "If Congress does not act, we will use the executive authority of the president to stop the dividing up of families.", "You want to keep the minimum wage low, and give tax breaks to millionaires.", "@realDonaldTrump, that is not what makes America great.", "Any official who helped suppress the videotape of Laquan McDonald’s murder should be held accountable.", "Garcia for inviting me to Chicago today.", "Two agents for real change.", "Reforming our criminal justice system is one of the most important things that a President can do.", "Corporate America and Wall Street: you can hate me all you want, but we’re going to end your greed.", "We need to end mandatory minimum sentencing and give judges the discretion to better tailor sentences to the specific facts of a given case.", "We cannot jail our way out of health problems like drug addiction or social and economic problems like poverty.", "Spending some time tonight with @CornelWest, @NinaTurner, @JesusChuyGar and @KillerMike in Chicago.", "If you don’t have a lot of money and you have a high health insurance deductible, you’re not gonna go to the doctor.", "I’m getting a very good feeling about Iowa.", "We have to ask ourselves, “Is it morally acceptable, is it economically sustainable, that so few have so much while so many have so little?”.", "This election is not just about electing a President.", "Far more significantly, it is about transforming America.", "We need to tell the drug companies to stop ripping off the American people.", "To rein in Wall Street, we should begin by reforming the Federal Reserve.", "There comes a time when you have to take on the establishment and not be part of that establishment.", "There is nothing that is more important than passing on a Mother Earth that is healthy and habitable for our kids and grandchildren.", "Climate change is real and caused by human activity.", "It's already causing devastating problems around the world.", "It’s all hands on deck for a pre-holiday phone bank.", "We're going to move to public funding of elections so candidates don't have to beg the wealthy and powerful for money when they want to run.", "You have a right to health care regardless of whether you are rich or poor.", "The Koch brothers are prepared to spend $889 million this election to end Social Security and dismantle our safety net.", "I am going to take on Wall Street.", "They do not like me today.", "They will like me even less if I am elected president.", "Congress bailed out Wall St.", "because it was too big to fail.", "In my view, if a bank is too big to fail, it's too big to exist.", "We're gonna have some fun, we're gonna make a political revolution, we're gonna transform America.", "Other than that, not much.", "The second 100 days of the political revolution.", "I believe that we need a political revolution.", "The same old, same old just isn't going to do it.", "We have to be bold.", "You are looking at one candidate for president who does not have a super PAC and I’m damn proud of that.", "Despite growing poverty among seniors, Republicans want more austerity for the elderly and more tax breaks for the rich.", "If we're going to stand up to the greed of the billionaire class and the greed of corporate America, I accept Wall Street not liking me.", "We have a broken immigration system that divides families and keeps millions of hard-working people in the shadows.", "\"I guess Christmas Eve was booked.", "” - Michael Briggs, Comms.", "The time is now for the United States to end capital punishment.", "Voter ID laws aren't intended to discourage fraud, they are intended to discourage voting.", "If we are to retain the fundamentals of American democracy, we need to overturn the disastrous Citizens United Supreme Court decision.", "We must convince students that if they participate in the political process we can lower the outrageously high student debt they face.", "Let’s be clear: in terms of protecting the needs of our families the United States lags behind virtually every major country on earth.", "The fossil fuel industry is destroying the planet with impunity and getting rich while doing it.", "This campaign is about the needs of the American people, and the proposals that effectively address those needs.", "I support 12 weeks of paid leave for every worker.", "Say you support paid leave for mothers &amp; fathers too.", "We now have the highest incarceration rate in the entire world with over 2 million in prison and millions more on probation or parole.", "Post-debate breakfast from this morning at IHOP in Bedford, New Hampshire.", "\"Get in on the love train.", "That’s what Bernie Sanders’ campaign is.", "Corporate greed is rampant, and the very rich keep growing richer while everyone else grows poorer.", "This campaign will be driven by issues and serious debate.", "The United States once led the world in terms of the percentage of our young people who had college degrees.", "Today we’re now in 12th place.", "I got into politics not to figure out how to become President.", "I got into politics because I give a damn.", "Addiction is a disease, not a criminal activity.", "Addiction is ravaging families and communities in NH.", "This is a crisis, and we need to treat it as a health issue—not throw people in jail.", "I know you have heard these names before but they bear repeating so we do not lose sight of the real human price being paid.", "Michael Brown, Eric Garner, Jessica Hernandez, Freddie Gray, Sandra Bland, Tamir Rice, Samuel Dubose, Rekia Boyd and too many more.", "Any serious criminal justice reform must include removing marijuana from the Controlled Substances Act.", "We need to rethink the \"War on Drugs\" and treat substance abuse as a serious health issue, not a criminal issue.", "'Socialist' programs from FDR and LBJ:\n✅Social Security\n✅Minimum Wage\n✅Medicare and Medicaid\n✅40-hour work week\n#DemDebate.", "When a husband can’t get time off to care for his cancer-stricken wife, that is not a family value.", "Medicare for All would eliminate payments to insurance companies that put profits before people.", "Bernie’s college plan is the only plan that affords lower-income kids the same opportunity for a quality education.", "CEO's of large multinationals may like @HillaryClinton, but they ain't gonna like me.", "We need debt-free college and free tuition is the best way to get there.", "I don’t think it’s a radical idea that in the richest country in the history of the world health care should be a right, not a privilege.", "Bernie helped lead the effort against @billclinton who thought it would be a great idea to deregulate Wall Street.", "\"The greed of the billionaire class, the greed of Wall Street is destroying this economy.", "We do not have a super PAC.", "We do not want the money of corporate America.", "This is a people’s campaign."] 
@@ -257,644 +554,6 @@ class BernieBot
     
   end
   
-  def source_texts
-    
-    preposition  = "preposition"
-    conjunction  = "conjunction"
-    verb_to_be   = "verb_to_be"
-    verb_to_have = "verb_to_have"
-    
-    texts = []
-    
-    texts << SourceText.new({
-      first_part: "Instead of sending American jobs to China, corporate America has got to",
-      second_part: "re-invest in this country and create decent-paying jobs in America.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Instead of giving tax breaks to millionaires, we need to",
-      second_part: "rebuild our crumbling infrastructure and create millions of decent-paying jobs.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "We must demilitarize police departments so they do not",
-      second_part: "look like oppressing armies.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Rising costs are making it harder and harder for ordinary Americans to",
-      second_part: "get the education they want and need.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "We need to expand Social Security to",
-      second_part: "make sure every American can retire in dignity.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "The time is now for the United States to",
-      second_part: "end capital punishment.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "A society which proclaims human freedom as its goal, as we do, must work unceasingly to",
-      second_part: "end discrimination against all people.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "The time is long overdue for us to",
-      second_part: "take marijuana off the federal government’s list of outlawed drugs.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "In my view, a two-year budget deal gives us time to",
-      second_part: "focus on the most important issues confronting our nation.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Parents should have the right to",
-      second_part: "stay home with their newborn baby for at least 3 months with paid family leave.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "As a nation, we are going to have to",
-      second_part: "answer whether it's morally & economically acceptable that so few have so much & so many have so little",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "It's time to build on the progressive movement of the past and",
-      second_part: "make public colleges and universities tuition-free.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "We need to end voter suppression, and",
-      second_part: "make it easier for people to vote, not harder.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "It’s unacceptable that, at every turn, huge companies use their power to",
-      second_part: "cut wages, cut benefits and cut pensions. Their greed has no end.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "A lot of Republican candidates talk about family values. What they are saying is that no woman should have the right to",
-      second_part: "control her own body",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "With so much violence in this world today, I just don't think the state itself should",
-      second_part: "be in the business of killing people.",
-      category: preposition
-    })  
-    texts << SourceText.new({
-      first_part: "The State, in a democratic, civilized society, should itself not",
-      second_part: "be involved in the murder of other Americans.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "If the Ex-Im Bank cannot be reformed to become a vehicle for real job creation in the US, it should",
-      second_part: "be eliminated.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "$7.25 is a starvation wage, which must",
-      second_part: "be raised. The minimum wage must become a living wage.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "A mom and a dad should have the right to at least a couple of weeks of paid vacation so they can",
-      second_part: "spend quality time with their kids.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "When millions of seniors are trying to survive on incomes of $12,000 a year, we must",
-      second_part: "resist Republican efforts to cut Social Security.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Our civil liberties and right to privacy shouldn’t",
-      second_part: "be the price we pay for security. #CISA",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Let’s be clear: Defaulting on our debt would",
-      second_part: "be a disaster.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Puerto Ricans should not be forced to",
-      second_part: "suffer so that a handful of wealthy investors can make even more money",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "People have a right to",
-      second_part: "make a telephone call without that information being collected by the government.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "An education should",
-      second_part: "be available to all regardless of anyone’s station.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "As the largest and most powerful military in the world, we need to",
-      second_part: "use military force as a last resort, not a first option.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "We will win in 2016 because we are going to",
-      second_part: "create an unprecedented grassroots movement. #Bernie2016",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "I voted against the USA Patriot Act and will continue to do all that I can to",
-      second_part: "prevent us from moving toward an Orwellian society.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Our goal as a nation must be to",
-      second_part: "ensure that no full-time worker lives in poverty. #Bernie2016",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "I remember reading picture books of World War II with tears coming out of my eyes. We've got to",
-      second_part: "stand together and end all forms of racism.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Any serious criminal justice reform must",
-      second_part: "include removing marijuana from the Controlled Substances Act.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "If you take a look at my life’s work, there is one candidate in this campaign who is prepared to",
-      second_part: "stand up to the billionaire class.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "On immigration, we must",
-      second_part: "be aggressive in pursuing policies that are humane and sensible and that keep families together.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Instead of encouraging more people to vote, Republicans have passed laws to",
-      second_part: "keep people away from the polls, especially low-income people.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Democracy is not a spectator sport. We must be truly engaged if we want to",
-      second_part: "make real change. Go vote. #ElectionDay",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "I have always opposed Keystone XL. It isn't a distraction — it's a fundamental litmus test of your commitment to",
-      second_part: "battle climate change.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "One in five Americans today cannot afford to",
-      second_part: "fill the prescriptions their doctors write for them.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Congress cannot regulate Wall Street. It is time to",
-      second_part: "break these too big to fail banks up.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "We cannot end DACA. We must fight to",
-      second_part: "expand this successful program to legal limits. A president must be consistent on immigration.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "We must convince students that if they participate in the political process we can",
-      second_part: "lower the outrageously high student debt they face.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "To my Republican colleagues I say:",
-      second_part: "worry less about your campaign contributions and worry more about your children.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Every Democratic presidential candidate serious about addressing climate change should",
-      second_part: "pledge to end fossil fuel leasing on public lands.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "The science is clear: we need to act to",
-      second_part: "keep fossil fuels in the ground. #KeepItInTheGround",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "If Teddy Roosevelt were alive today, he would say:",
-      second_part: "break up these too-big-to-fail banks.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "We already have the biggest military in the world, yet veterans",
-      second_part: "sleep out on the streets. Will Republicans talk about this? #GOPDebate",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Let us stand today with the tens of millions of workers who are working hard to",
-      second_part: "put food on the table.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Freedom of speech does not mean the freedom to",
-      second_part: "buy the United States government.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "I'm listening to the #BlackOnCampus conversation. It's time to",
-      second_part: "address structural racism on college campuses.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Glad to see so many young people here today. It’s important to",
-      second_part: "understand the sacrifices veterans have made. #FITN",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "Republicans' family values are that our gay brothers and sisters shouldn't",
-      second_part: "be able to get married.",
-      category: preposition
-    })
-    texts << SourceText.new({
-      first_part: "I don’t believe it is a terribly radical idea to say that someone who works 40 hours a week should not",
-      second_part: "be living in poverty. #FightFor15",
-      category: preposition
-    })
-    
-    
-=begin
-    texts << SourceText.new({
-      first_part: "",
-      second_part: "",
-      category: preposition
-    })
 =end
-    
-    ## CONJUNCTIONS
-    texts << SourceText.new({
-      first_part: "Too many Americans have seen their lives destroyed because",
-      second_part: "they have criminal records as a result of marijuana use. That has got to change.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "Democrats win when people come out. Republicans win when",
-      second_part: "their big money buys low voter turnout elections.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "The American people are angry because",
-      second_part: "they know this recession was not caused by the middle class and working families of this country.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "It makes no sense that you can get an auto loan with an interest rate of 2.5% but",
-      second_part: "millions of college graduates are forced to pay 7% or more",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "Wall Street should not believe that",
-      second_part: "they can get blood from a stone.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "Republicans win when",
-      second_part: "voter turnout is low.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "Republicans win when",
-      second_part: "people become demoralized.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "Republicans win when",
-      second_part: "they don't think their vote matters.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "Glad the @FCC acted. It is outrageous that",
-      second_part: "a fifteen-minute phone call could cost upwards of twelve dollars.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "There is no justice when",
-      second_part: "so few have so much and so many have so little.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "In America, we have a casino-capitalist society in which",
-      second_part: "a handful of very wealthy exercise enormous control over our economy and politics.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "My nightmare is that",
-      second_part: "the United States once again gets caught up in a quagmire in the Middle East that never ends.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "All over this country people are working two or three jobs, yet",
-      second_part: "they can’t afford child care or to send their kids to college.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "A key pathway to the middle class runs through college, but",
-      second_part: "rising costs are making it harder for Americans to get the education they need.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "This campaign is sending a message to the billionaires: you can’t continue sending our jobs to China while",
-      second_part: "millions are looking for work.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "At a time of massive inequality, the Republicans believe that",
-      second_part: "the richest people in America need to be made even richer.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "There is something very wrong when",
-      second_part: "one family owns more wealth than the bottom 130 million Americans. #nhpolitics",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "My friends, a political revolution is coming to New Hampshire and",
-      second_part: "it’s coming to America. #fitn",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "The scientific community has been virtually unanimous:",
-      second_part: "climate change is real. Our job is to aggressively transform our energy system.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "Bike canvassing is one way",
-      second_part: "our organizers in NH help reduce the use of fossil fuels while reaching voters. #fitn",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "Americans are working longer hours for lower wages and wondering how",
-      second_part: "they're going to retire with dignity.",
-      category: conjunction
-    })
-    texts << SourceText.new({
-      first_part: "If patriotism means anything, it means that",
-      second_part: "we do not turn our backs on those who defended us.",
-      category: conjunction
-    })
-    
-    
-    
-    
-=begin
-        texts << SourceText.new({
-          first_part: "",
-          second_part: "",
-          category: conjunction
-        })
-=end
-    
-    ## VERB TO BE
-    texts << SourceText.new({
-      first_part: "A college degree today is",
-      second_part: "the equivalent of a high school degree 50 years ago.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "I worry very much that our country, both economically and politically, is",
-      second_part: "sliding into oligarchy.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "The Defense of Marriage Act was",
-      second_part: "simply homophobic legislation.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "The future of America is",
-      second_part: "with our children.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "How can we have a great country if we aren’t",
-      second_part: "educating our children the way we should.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "The American people understand that our current economic system is",
-      second_part: "rigged, and that our campaign finance system is corrupt.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "In my view, health care is",
-      second_part: "a right of the people, not a privilege.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "The skyrocketing level of income and wealth inequality is not only grotesque and immoral, it is",
-      second_part: "economically unsustainable.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "It is totally unacceptable that Americans are",
-      second_part: "drowning in $1.3 trillion in student loan debt.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "We are going to fight voter suppression in all forms. If you are 18 years of age, you will be",
-      second_part: "automatically registered to vote.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "We must fundamentally rewrite our trade policy so that American products, not American jobs, are",
-      second_part: "our No. 1 export.",
-      category: verb_to_be
-    })    
-    texts << SourceText.new({
-      first_part: "The TPP is",
-      second_part: "a continuation of our disastrous trade policies that have devastated manufacturing cities and towns all over this country.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "Now that the text of the Trans-Pacific Partnership has finally been released, it is",
-      second_part: "even worse than I thought.",
-      category: verb_to_be
-    })    
-    texts << SourceText.new({
-      first_part: "We need a banking system that is",
-      second_part: "part of creating a productive economy, not a handful of huge banks that engage in reckless activities.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "The only long-term solution to America's health care crisis is",
-      second_part: "a single-payer national health care program.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "We must tell the fossil-fuel industry that their short-term profits are",
-      second_part: "less important than caring for our planet.",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "The debate is over. Climate change is real, it is caused by humans and it is",
-      second_part: "already causing devastating problems. #KeepItInTheGround",
-      category: verb_to_be
-    })
-    texts << SourceText.new({
-      first_part: "As we look back through history, we know women were",
-      second_part: "at the forefront of every progressive victory in this country.",
-      category: verb_to_be
-    })
-    
-    
-    
-=begin
-    texts << SourceText.new({
-      first_part: "",
-      second_part: "",
-      category: verb_to_be
-    })
-=end
-
-    ## VERB TO HAVE
-    texts << SourceText.new({
-      first_part: "We need",
-      second_part: "tuition-free public colleges.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "This country belongs to all of us, not just",
-      second_part: "wealthy campaign donors.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "Tragically, in America today we have",
-      second_part: "more people in jail than any other country on Earth.",
-      category: verb_to_have
-    }) 
-    texts << SourceText.new({
-      first_part: "We must not cut",
-      second_part: "programs that the elderly, children, sick, poor and working families desperately depend upon.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "America stands ready to provide everything the people of Mexico need as they endure",
-      second_part: "the strongest hurricane in recorded history.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "DOJ Should Investigate Exxon Mobil for misleading public about",
-      second_part: "climate change #ExxonKnew",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "We need to end minimum sentencing. Too many lives have been destroyed for",
-      second_part: "non-violent crimes.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "It is an embarrassment that we have a major political party that rejects",
-      second_part: "the overwhelming science on climate change.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "Real criminal justice reform must include joining every other major democracy in eliminating",
-      second_part: "the death penalty.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "Congratulations to @SenatorLeahy not only on 15,000 votes but on your many years of",
-      second_part: "service to the people of Vermont",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "Americans have more student debt than",
-      second_part: "credit card or auto-loan debt. That is a tragedy for our young people and our nation.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "Any serious criminal justice reform must include removing",
-      second_part: "marijuana from the Controlled Substances Act.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "This campaign is sending a message to the billionaire class: you can’t have",
-      second_part: "it all! #nhpolitics",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "Like many other polls, the NBC/WSJ poll shows our campaign is the best shot for",
-      second_part: "Democrats heading into the general.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "If I'm \"finished,\" I don't know what it says about",
-      second_part: "Trump's situation when I'm 9pts ahead of him in the new NBC poll.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "Billionaires should not be able to buy elections or candidates. We have got to overturn",
-      second_part: "the Citizens United Supreme Court decision.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "We shouldn't be providing corporate welfare to multi-national corporations through",
-      second_part: "the Export-Import Bank.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "We need pay equity in this country so that women make",
-      second_part: "what a man makes for doing the same work.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "We need trade policies in this country that work for",
-      second_part: "the working families of our nation.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "Republicans should worry more about their kids and grandchildren and the future of this planet than",
-      second_part: "their campaign contributors. #GOPDebate",
-      category: verb_to_have
-    })       
-    texts << SourceText.new({
-      first_part: "We will close the income inequality gap between",
-      second_part: "the rich and the rest of us.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "The cost of war is real, and we have got to support",
-      second_part: "those people who have put their lives on the line defending this country.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "Medicare for All would eliminate payments to",
-      second_part: "insurance companies that put profits before people.",
-      category: verb_to_have
-    })
-    texts << SourceText.new({
-      first_part: "Too often our Native American brothers and sisters have seen",
-      second_part: "corporate profits put ahead of their sovereign rights.",
-      category: verb_to_have
-    })
-    
-    
-      
-=begin
-    texts << SourceText.new({
-      first_part: "",
-      second_part: "",
-      category: verb_to_have
-    })
-=end
-             
-    texts
-    
-  end
   
 end
