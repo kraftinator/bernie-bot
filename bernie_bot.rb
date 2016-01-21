@@ -41,6 +41,7 @@ class BernieBot
     
     ## Return false for certain word combos 
     return false, "INVALID WORD COMBO: #{result}" if result =~ /because for/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /because is/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /because was/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /can have to/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /from teens pleads/i
