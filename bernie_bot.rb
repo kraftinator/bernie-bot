@@ -62,6 +62,7 @@ class BernieBot
     return false, "INVALID WORD COMBO: #{result}" if result =~ /while of/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /will for/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /will it be/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /will of/i
     
     ################
     ## Edit result
