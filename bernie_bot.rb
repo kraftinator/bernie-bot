@@ -43,18 +43,23 @@ class BernieBot
     return false, "INVALID WORD COMBO: #{result}" if result =~ /because for/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /because is/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /because was/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /but of/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /can have to/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /from teens pleads/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /it should it/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /look which all/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /might it/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /one who aren't/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /shall of/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /should do that is/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /sure which the/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /their will/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /\. to /
     return false, "INVALID WORD COMBO: #{result}" if result =~ /we should it/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /when is to/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /when here/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /when also/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /when of/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /when was/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /when would/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /which also to/i
@@ -93,21 +98,25 @@ class BernieBot
     
     quote_count = result.count('"')
     return false, "INVALID QUOTES: #{result}" if quote_count > 0 and quote_count.odd?
-      ## Remove rogue quotes
-      #result.gsub!('"', '')
-      #end
     
     ## Remove extra period
     result.gsub!("?.", "?")
     result.gsub!("!.", "!")
     result.gsub!(":.", ":")
     result.gsub!("..", ".")
+    result.gsub!(".\".", ".\"")
     if result.split(//).last(2).join == ".." and result.split(//).last(3).join != "..."
       result = result.chomp(".")
     end
 
     if result[0] == '@'
       result = ".#{result}"
+    end
+    
+    ## If result ends with colon, replace colon with period.
+    if result.last == ':'
+      result = result.chomp(":")
+      result = "#{result}."
     end
     
     ## Unescape result
@@ -208,6 +217,7 @@ class BernieBot
       category = 'alpha'
       next if parse_text( corpus, category, "to address" )
       next if parse_text( corpus, category, "to advance" )
+      next if parse_text( corpus, category, "to allow" )
       next if parse_text( corpus, category, "to answer" )
       next if parse_text( corpus, category, "to assassinate" )
       next if parse_text( corpus, category, "to attack" )
@@ -218,6 +228,7 @@ class BernieBot
       next if parse_text( corpus, category, "to beg" )
       next if parse_text( corpus, category, "to blow" )
       next if parse_text( corpus, category, "to bomb" )
+      next if parse_text( corpus, category, "to boycott" )
       next if parse_text( corpus, category, "to break" )
       next if parse_text( corpus, category, "to build" )
       next if parse_text( corpus, category, "to buy" )
@@ -225,65 +236,95 @@ class BernieBot
       next if parse_text( corpus, category, "to close" )
       next if parse_text( corpus, category, "to commemorate" )
       next if parse_text( corpus, category, "to control" )
+      next if parse_text( corpus, category, "to cover" )
       next if parse_text( corpus, category, "to create" )
       next if parse_text( corpus, category, "to criminalize" )
       next if parse_text( corpus, category, "to cut" )
       next if parse_text( corpus, category, "to deliver" )
+      next if parse_text( corpus, category, "to depend" )
       next if parse_text( corpus, category, "to deport" )
       next if parse_text( corpus, category, "to destroy" )
+      next if parse_text( corpus, category, "to determine" )
       next if parse_text( corpus, category, "to develop" ) 
       next if parse_text( corpus, category, "to dig" ) 
+      next if parse_text( corpus, category, "to discover" ) 
+      next if parse_text( corpus, category, "to discuss" ) 
+      next if parse_text( corpus, category, "to donate" )
       next if parse_text( corpus, category, "to drive" )
-      next if parse_text( corpus, category, "to drop" ) 
+      next if parse_text( corpus, category, "to drop" )
+      next if parse_text( corpus, category, "to dump" ) 
       next if parse_text( corpus, category, "to eat" )  
       next if parse_text( corpus, category, "to end" )  
+      next if parse_text( corpus, category, "to endorse" )
       next if parse_text( corpus, category, "to ensure" )
+      next if parse_text( corpus, category, "to exit" )
       next if parse_text( corpus, category, "to expand" )   
-      next if parse_text( corpus, category, "to fight" )      
+      next if parse_text( corpus, category, "to fight" )
+      next if parse_text( corpus, category, "to follow" )
       next if parse_text( corpus, category, "to fund" )
       next if parse_text( corpus, category, "to get" )
       next if parse_text( corpus, category, "to give" )
       next if parse_text( corpus, category, "to grasp" )
       next if parse_text( corpus, category, "to have" )  
-      next if parse_text( corpus, category, "to here" )  
+      next if parse_text( corpus, category, "to hear" ) 
+      next if parse_text( corpus, category, "to hold" ) 
       next if parse_text( corpus, category, "to import" )
       next if parse_text( corpus, category, "to integrate" )
+      next if parse_text( corpus, category, "to invite" )
       next if parse_text( corpus, category, "to join" )
       next if parse_text( corpus, category, "to judge" )
       next if parse_text( corpus, category, "to jump" )
       next if parse_text( corpus, category, "to keep" )
       next if parse_text( corpus, category, "to kidnap" )
       next if parse_text( corpus, category, "to kill" )
+      next if parse_text( corpus, category, "to learn" )
+      next if parse_text( corpus, category, "to legalize" )
       next if parse_text( corpus, category, "to limit" )
       next if parse_text( corpus, category, "to make" )
       next if parse_text( corpus, category, "to mandate" )
       next if parse_text( corpus, category, "to mention" )
       next if parse_text( corpus, category, "to move" )
+      next if parse_text( corpus, category, "to obey" )
       next if parse_text( corpus, category, "to offend" )
       next if parse_text( corpus, category, "to operate" )
       next if parse_text( corpus, category, "to oppose" )
+      next if parse_text( corpus, category, "to pander" )
+      next if parse_text( corpus, category, "to pass" )
+      next if parse_text( corpus, category, "to plow" )
       next if parse_text( corpus, category, "to prevent" )
       next if parse_text( corpus, category, "to promote" )
       next if parse_text( corpus, category, "to protect" )
       next if parse_text( corpus, category, "to pull" )
+      next if parse_text( corpus, category, "to push" )
       next if parse_text( corpus, category, "to punish" )
       next if parse_text( corpus, category, "to pursuade" )
+      next if parse_text( corpus, category, "to pursue" )
       next if parse_text( corpus, category, "to quit" )
+      next if parse_text( corpus, category, "to raise" )
+      next if parse_text( corpus, category, "to read" )
       next if parse_text( corpus, category, "to rebuild" )
+      next if parse_text( corpus, category, "to receive" )
+      next if parse_text( corpus, category, "to reduce" )
       next if parse_text( corpus, category, "to refuse" )
       next if parse_text( corpus, category, "to return" )
+      next if parse_text( corpus, category, "to revoke" )
+      next if parse_text( corpus, category, "to see" )
       next if parse_text( corpus, category, "to sell" )
       next if parse_text( corpus, category, "to share" )
       next if parse_text( corpus, category, "to shut" )
       next if parse_text( corpus, category, "to spend" )
+      next if parse_text( corpus, category, "to stay" )
       next if parse_text( corpus, category, "to stop" )
       next if parse_text( corpus, category, "to support" )
       next if parse_text( corpus, category, "to scrap" )
       next if parse_text( corpus, category, "to understand" )
       next if parse_text( corpus, category, "to take" )
       next if parse_text( corpus, category, "to target" )
+      next if parse_text( corpus, category, "to terminate" )
       next if parse_text( corpus, category, "to think" )
       next if parse_text( corpus, category, "to tweet" )
+      next if parse_text( corpus, category, "to use" )
+      next if parse_text( corpus, category, "to watch" )
       next if parse_text( corpus, category, "to wear" )
       next if parse_text( corpus, category, "to win" )
       next if parse_text( corpus, category, "to work" )
