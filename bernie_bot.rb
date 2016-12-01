@@ -68,6 +68,24 @@ class BernieBot
     return false, "INVALID WORD COMBO: #{result}" if result =~ /will for/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /will it be/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /will of/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /when was/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /when would/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /which also to/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /while is/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /while of/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /will for/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /will it be/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /will of/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /would as/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /being on with/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /fuck/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /retard/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /shit/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /butt-hurt/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /butthurt/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ /butt hurt/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ / via @/i
+    
     
     ################
     ## Edit result
@@ -99,11 +117,16 @@ class BernieBot
     quote_count = result.count('"')
     return false, "INVALID QUOTES: #{result}" if quote_count > 0 and quote_count.odd?
     
+    return false, "INVALID CHARACTERS: #{result}" if result =~ /…/
+    
     ## Remove extra period
     result.gsub!("?.", "?")
     result.gsub!("!.", "!")
     result.gsub!(":.", ":")
+    result.gsub!(";.", ".")
+    result.gsub!("-.", ".")
     result.gsub!("..", ".")
+    result.gsub!(",.", ".")
     result.gsub!(".\".", ".\"")
     if result.split(//).last(2).join == ".." and result.split(//).last(3).join != "..."
       result = result.chomp(".")
