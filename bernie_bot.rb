@@ -160,7 +160,7 @@ class BernieBot
       text = tweet.text
       next if text[0] == '@'
       next if text[1] == '@'
-      next if text =~ /\?/
+      #next if text =~ /\?/
       next if text =~ /\n/
       next if text =~ /\=/
       words = text.split(' ')
@@ -225,6 +225,7 @@ class BernieBot
       ###############################
       category = 'alpha'
       next if parse_text( corpus, category, "to address" )
+      next if parse_text( corpus, category, "to admit" )
       next if parse_text( corpus, category, "to advance" )
       next if parse_text( corpus, category, "to allow" )
       next if parse_text( corpus, category, "to answer" )
@@ -242,6 +243,7 @@ class BernieBot
       next if parse_text( corpus, category, "to build" )
       next if parse_text( corpus, category, "to buy" )
       next if parse_text( corpus, category, "to call" )
+      next if parse_text( corpus, category, "to change" )
       next if parse_text( corpus, category, "to close" )
       next if parse_text( corpus, category, "to commemorate" )
       next if parse_text( corpus, category, "to control" )
@@ -250,6 +252,7 @@ class BernieBot
       next if parse_text( corpus, category, "to criminalize" )
       next if parse_text( corpus, category, "to cut" )
       next if parse_text( corpus, category, "to deliver" )
+      next if parse_text( corpus, category, "to defend" )
       next if parse_text( corpus, category, "to depend" )
       next if parse_text( corpus, category, "to deport" )
       next if parse_text( corpus, category, "to destroy" )
@@ -269,11 +272,13 @@ class BernieBot
       next if parse_text( corpus, category, "to exit" )
       next if parse_text( corpus, category, "to expand" )   
       next if parse_text( corpus, category, "to fight" )
+      next if parse_text( corpus, category, "to find" )
       next if parse_text( corpus, category, "to follow" )
       next if parse_text( corpus, category, "to fund" )
       next if parse_text( corpus, category, "to get" )
       next if parse_text( corpus, category, "to give" )
       next if parse_text( corpus, category, "to grasp" )
+      next if parse_text( corpus, category, "to guarantee" )
       next if parse_text( corpus, category, "to have" )  
       next if parse_text( corpus, category, "to hear" ) 
       next if parse_text( corpus, category, "to hold" ) 
@@ -288,6 +293,7 @@ class BernieBot
       next if parse_text( corpus, category, "to kill" )
       next if parse_text( corpus, category, "to learn" )
       next if parse_text( corpus, category, "to legalize" )
+      next if parse_text( corpus, category, "to lift" )
       next if parse_text( corpus, category, "to limit" )
       next if parse_text( corpus, category, "to make" )
       next if parse_text( corpus, category, "to mandate" )
@@ -295,12 +301,14 @@ class BernieBot
       next if parse_text( corpus, category, "to move" )
       next if parse_text( corpus, category, "to obey" )
       next if parse_text( corpus, category, "to offend" )
+      next if parse_text( corpus, category, "to offshore" )
       next if parse_text( corpus, category, "to operate" )
       next if parse_text( corpus, category, "to oppose" )
       next if parse_text( corpus, category, "to pander" )
       next if parse_text( corpus, category, "to pass" )
       next if parse_text( corpus, category, "to plow" )
       next if parse_text( corpus, category, "to prevent" )
+      next if parse_text( corpus, category, "to produce" )
       next if parse_text( corpus, category, "to promote" )
       next if parse_text( corpus, category, "to protect" )
       next if parse_text( corpus, category, "to pull" )
@@ -324,6 +332,7 @@ class BernieBot
       next if parse_text( corpus, category, "to spend" )
       next if parse_text( corpus, category, "to stay" )
       next if parse_text( corpus, category, "to stop" )
+      next if parse_text( corpus, category, "to subsidize" )
       next if parse_text( corpus, category, "to support" )
       next if parse_text( corpus, category, "to scrap" )
       next if parse_text( corpus, category, "to understand" )
@@ -331,6 +340,9 @@ class BernieBot
       next if parse_text( corpus, category, "to target" )
       next if parse_text( corpus, category, "to terminate" )
       next if parse_text( corpus, category, "to think" )
+      next if parse_text( corpus, category, "to throw" )
+      next if parse_text( corpus, category, "to trample" )
+      next if parse_text( corpus, category, "to treat" )
       next if parse_text( corpus, category, "to tweet" )
       next if parse_text( corpus, category, "to use" )
       next if parse_text( corpus, category, "to watch" )
