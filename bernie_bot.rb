@@ -36,7 +36,6 @@ class BernieBot
     return false, "INVALID WORD COMBO: #{result}" if result =~ /because for/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /because is/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /because was/i
-    return false, "INVALID WORD COMBO: #{result}" if result =~ /because has/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /but of/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /can have to/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /from teens pleads/i
@@ -79,6 +78,9 @@ class BernieBot
     return false, "INVALID WORD COMBO: #{result}" if result =~ /butthurt/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ /butt hurt/i
     return false, "INVALID WORD COMBO: #{result}" if result =~ / via @/i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ / because has /i
+    return false, "INVALID WORD COMBO: #{result}" if result =~ / should was /i
+
     
     
     ################
